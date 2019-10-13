@@ -5,7 +5,14 @@
 #   Copyright                                                             #
 #                                                                         #
 #   (C)  2019 Carlos H. Antunes <hantunes@gmx.com>                        #
-#                                                                         #
+#   (C)  2010 Anselmo Lacerda Silveira de Melo <anselmolsm@gmail.com>     #
+#   (C)  2010 Emile de Weerd <mederel+radionederland@gmail.com>           #
+#   (C)  2009 MetalByte <emetalbyte@gmail.com>                            #
+#   (C)  2009 Àlvar Cuevas i Fajardo <alvar@cuevas.cat>                   #
+#   (C)  2008 Eirik Johansen Bjørgan  <eirikjbj@gmail.com>                #
+#   (C)  2008 Peter ZHOU <peterzhoulei@gmail.com>                         #
+#   (C)  2008 Mark Kretschmann <kretschmann@kde.org>                      #
+#   (C)  2007, 2008 Nikolaj Hald Nielsen  <nhnFreespirit@gmail.com>       #                                                                         #
 #   This program is free software; you can redistribute it and/or modify  #
 #   it under the terms of the GNU General Public License as published by  #
 #   the Free Software Foundation; either version 2 of the License, or     #
@@ -25,20 +32,23 @@
 Importer.loadQtBinding("qt.core");
 Importer.loadQtBinding("qt.gui");
 
-function Station(name, url) {
+function Station(name, url, description) {
     this.name = name;
     this.url = url;
+    this.description = description;
 }
 
 categories = {};
 
 categories["  Vancouver"] = new Array(
-    new Station("Rock 101", "https://live.leanstream.co/CFMIFM?args=web_01&startTime=1570931145")
+    new Station("Rock 101",
+        "https://live.leanstream.co/CFMIFM?args=web_01&startTime=1570931145","")
 );
 
 
 function CanadianRadios() {
-    ScriptableServiceScript.call(this, "Canadian Radios", 2, "List of Canadian radios", "A collection of radios from many cities in Canada", true);
+    ScriptableServiceScript.call(this, "Canadian Radios", 2, "List of Canadian radios",
+        "A collection of radios from many cities in Canada", true);
     Amarok.debug("ok.");
 }
 
@@ -48,7 +58,6 @@ function onConfigure() {
 }
 
 function onPopulating(level, callbackData, filter) {
-    // For some reason Amarok appends a "%20", remove it
     filter = filter.toLowerCase().replace("%20", "");
 
     if (level == 1) {
@@ -86,13 +95,14 @@ function onPopulating(level, callbackData, filter) {
 
         for (i = 0; i < stationArray.length; i++) {
             name = stationArray[i].name;
-            if (name.toLowerCase().indexOf(filter) == -1) continue;
+            if (name.toLowerCase().indexOf(filter) === -1) continue;
             item = Amarok.StreamItem;
             item.level = 0;
             item.callbackData = "";
             item.itemName = stationArray[i].name;
             item.playableUrl = stationArray[i].url;
-            item.album = stationArray[i].name;
+            item.album = callbackData;
+            item.infoHtml = stationArray[i].description;
             item.artist = "Radio Stream";
             item.coverUrl = cover;
             script.insertItem(item);
